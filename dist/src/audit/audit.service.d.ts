@@ -6,6 +6,7 @@ export declare class AuditService {
     constructor(prisma: PrismaService);
     create(dto: CreateAuditEventDto): Promise<{
         event: {
+            id: string;
             tenantId: string;
             appId: string | null;
             actorType: import("@prisma/client").$Enums.ActorType;
@@ -17,7 +18,6 @@ export declare class AuditService {
             before: Prisma.JsonValue | null;
             after: Prisma.JsonValue | null;
             idempotencyKey: string | null;
-            id: string;
             correlationId: string | null;
             occurredAt: Date;
             ip: string | null;
@@ -29,6 +29,7 @@ export declare class AuditService {
         status: string;
     }>;
     findAll(): Promise<{
+        id: string;
         tenantId: string;
         appId: string | null;
         actorType: import("@prisma/client").$Enums.ActorType;
@@ -40,7 +41,6 @@ export declare class AuditService {
         before: Prisma.JsonValue | null;
         after: Prisma.JsonValue | null;
         idempotencyKey: string | null;
-        id: string;
         correlationId: string | null;
         occurredAt: Date;
         ip: string | null;
