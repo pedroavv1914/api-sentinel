@@ -1,0 +1,25 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+require("dotenv/config");
+const client_1 = require("@prisma/client");
+const adapter_pg_1 = require("@prisma/adapter-pg");
+const pg_1 = require("pg");
+const connectionString = `${process.env.DATABASE_URL}`;
+const pool = new pg_1.Pool({ connectionString });
+const adapter = new adapter_pg_1.PrismaPg(pool);
+const prisma = new client_1.PrismaClient({ adapter });
+async function main() {
+    const tenant = await prisma.tenant.findFirst({
+        orderBy: { createdAt: 'desc' }
+    });
+    if (tenant) {
+        console.log(`TENANT_ID=${tenant.id}`);
+    }
+    else {
+        console.log('No tenant found');
+    }
+}
+main()
+    .catch((e) => console.error(e))
+    .finally(async () => await prisma.$disconnect());
+//# sourceMappingURL=get-tenant.js.map
