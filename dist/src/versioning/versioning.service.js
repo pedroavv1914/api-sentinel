@@ -34,7 +34,12 @@ let VersioningService = class VersioningService {
         let diff = null;
         if (latestSnapshot) {
             version = latestSnapshot.version + 1;
-            diff = (0, fast_json_patch_1.compare)(latestSnapshot.data, newData);
+            if (latestSnapshot.data &&
+                typeof latestSnapshot.data === 'object' &&
+                newData &&
+                typeof newData === 'object') {
+                diff = (0, fast_json_patch_1.compare)(latestSnapshot.data, newData);
+            }
         }
         const createData = {
             tenantId,
