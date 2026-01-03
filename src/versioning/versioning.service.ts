@@ -48,7 +48,7 @@ export class VersioningService {
     }
 
     // 2. Create new snapshot
-    const createData: Prisma.EntitySnapshotUncheckedCreateInput = {
+    const createData: any = {
       tenantId,
       entityType,
       entityId,
@@ -60,7 +60,7 @@ export class VersioningService {
     };
 
     const snapshot = await this.prisma.entitySnapshot.create({
-      data: createData,
+      data: createData as Prisma.EntitySnapshotUncheckedCreateInput,
     });
 
     return snapshot;
