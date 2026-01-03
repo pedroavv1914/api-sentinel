@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const audit_service_1 = require("./audit.service");
 const create_audit_event_dto_1 = require("./dto/create-audit-event.dto");
 const swagger_1 = require("@nestjs/swagger");
+const api_key_guard_1 = require("../auth/guards/api-key.guard");
 let AuditController = class AuditController {
     auditService;
     constructor(auditService) {
@@ -32,9 +33,17 @@ let AuditController = class AuditController {
 exports.AuditController = AuditController;
 __decorate([
     (0, common_1.Post)('events'),
+    (0, common_1.UseGuards)(api_key_guard_1.ApiKeyGuard),
+    (0, swagger_1.ApiSecurity)('api-key'),
+    (0, swagger_1.ApiHeader)({
+        name: 'x-api-key',
+        description: 'API Key for authentication',
+        required: true,
+    }),
     (0, swagger_1.ApiOperation)({ summary: 'Ingest a new audit event' }),
     (0, swagger_1.ApiResponse)({ status: 201, description: 'Event created successfully.' }),
     (0, swagger_1.ApiResponse)({ status: 409, description: 'Idempotency conflict.' }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized.' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_audit_event_dto_1.CreateAuditEventDto]),
