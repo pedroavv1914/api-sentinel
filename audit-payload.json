@@ -1,0 +1,13 @@
+{
+  "tenantId": "e2537bed-9d00-463d-ac2d-ac7e7a7dea52",
+  "actorType": "USER",
+  "actorId": "user-123",
+  "action": "UPDATE_PROFILE_V2",
+  "entityType": "USER_PROFILE",
+  "entityId": "profile-1",
+  "after": {
+    "name": "Pedro Updated",
+    "role": "SuperAdmin",
+    "email": "pedro.updated@example.com"
+  }
+}
