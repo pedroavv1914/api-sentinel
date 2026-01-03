@@ -16,7 +16,8 @@ exports.VersioningModule = VersioningModule;
 exports.VersioningModule = VersioningModule = __decorate([
     (0, common_1.Module)({
         providers: [versioning_service_1.VersioningService],
-        controllers: [versioning_controller_1.VersioningController]
+        controllers: [versioning_controller_1.VersioningController],
+        exports: [versioning_service_1.VersioningService],
     })
 ], VersioningModule);
 //# sourceMappingURL=versioning.module.js.map
