@@ -14,7 +14,7 @@ let PolicyModule = class PolicyModule {
 exports.PolicyModule = PolicyModule;
 exports.PolicyModule = PolicyModule = __decorate([
     (0, common_1.Module)({
-        providers: [policy_service_1.PolicyService]
+        providers: [policy_service_1.PolicyService],
     })
 ], PolicyModule);
 //# sourceMappingURL=policy.module.js.map
