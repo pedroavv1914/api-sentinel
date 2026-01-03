@@ -53,10 +53,11 @@ let ApiKeyGuard = class ApiKeyGuard {
     }
     async canActivate(context) {
         const request = context.switchToHttp().getRequest();
-        const apiKey = request.headers['x-api-key'];
-        if (!apiKey) {
+        const apiKeyHeader = request.headers['x-api-key'];
+        if (!apiKeyHeader) {
             throw new common_1.UnauthorizedException('API Key is missing');
         }
+        const apiKey = Array.isArray(apiKeyHeader) ? apiKeyHeader[0] : apiKeyHeader;
         const hash = crypto.createHash('sha256').update(apiKey).digest('hex');
         const app = await this.prisma.app.findFirst({
             where: {
@@ -67,7 +68,7 @@ let ApiKeyGuard = class ApiKeyGuard {
         if (!app) {
             throw new common_1.UnauthorizedException('Invalid API Key');
         }
-        request.app = app;
+        request.apiApp = app;
         return true;
     }
 };
