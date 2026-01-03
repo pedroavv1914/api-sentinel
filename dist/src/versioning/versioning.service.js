@@ -13,6 +13,7 @@ exports.VersioningService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../common/prisma/prisma.service");
 const fast_json_patch_1 = require("fast-json-patch");
+const client_1 = require("@prisma/client");
 let VersioningService = class VersioningService {
     prisma;
     constructor(prisma) {
@@ -35,17 +36,18 @@ let VersioningService = class VersioningService {
             version = latestSnapshot.version + 1;
             diff = (0, fast_json_patch_1.compare)(latestSnapshot.data, newData);
         }
+        const createData = {
+            tenantId,
+            entityType,
+            entityId,
+            version,
+            data: newData,
+            diff: diff ? diff : client_1.Prisma.JsonNull,
+            createdBy: actorId,
+            eventId,
+        };
         const snapshot = await this.prisma.entitySnapshot.create({
-            data: {
-                tenantId,
-                entityType,
-                entityId,
-                version,
-                data: newData,
-                diff: diff ? diff : undefined,
-                createdBy: actorId,
-                eventId,
-            },
+            data: createData,
         });
         return snapshot;
     }

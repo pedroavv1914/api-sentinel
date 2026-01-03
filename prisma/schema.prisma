@@ -116,6 +116,9 @@ model EntitySnapshot {
   entityId   String   @map("entity_id")
   version    Int
   data       Json
+  diff       Json?
+  createdBy  String   @map("created_by")
+  eventId    String?  @map("event_id")
   createdAt  DateTime @default(now()) @map("created_at")
 
   tenant Tenant @relation(fields: [tenantId], references: [id])

@@ -1,4 +1,11 @@
-import { IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID, IsObject } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+  IsObject,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export enum ActorType {
@@ -9,10 +16,10 @@ export enum ActorType {
 export class CreateAuditEventDto {
   // In a real scenario, tenantId and appId might be extracted from the API Key or Token
   // For MVP/Testing, we might allow sending them, or we assume they are injected by a guard/interceptor.
-  // I'll make them optional here assuming they are filled by the controller/service from context, 
+  // I'll make them optional here assuming they are filled by the controller/service from context,
   // or required if we want to test easily without auth first.
   // Let's make them required for the payload for now to be explicit.
-  
+
   @ApiProperty()
   @IsUUID()
   @IsNotEmpty()

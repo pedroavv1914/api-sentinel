@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Body, ParseIntPipe, Query } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { VersioningService } from './versioning.service';
 import { ApiTags, ApiOperation, ApiParam, ApiQuery } from '@nestjs/swagger';
 
@@ -38,6 +38,11 @@ export class VersioningController {
     @Query('entityId') entityId: string,
     @Query('version', ParseIntPipe) version: number,
   ) {
-    return this.versioningService.rollback(tenantId, entityType, entityId, version);
+    return this.versioningService.rollback(
+      tenantId,
+      entityType,
+      entityId,
+      version,
+    );
   }
 }

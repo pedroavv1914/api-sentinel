@@ -3,10 +3,14 @@ import { PrismaService } from '../common/prisma/prisma.service';
 import { CreateAuditEventDto } from './dto/create-audit-event.dto';
 import * as crypto from 'crypto';
 import { ActorType, Prisma } from '@prisma/client';
+import { VersioningService } from '../versioning/versioning.service';
 
 @Injectable()
 export class AuditService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private versioningService: VersioningService,
+  ) {}
 
   async create(dto: CreateAuditEventDto) {
     // 1. Idempotency Check
@@ -30,7 +34,7 @@ export class AuditService {
 
     // 3. Prepare Data & Calculate Hashes
     const occurredAt = new Date();
-    
+
     // Normalize payload for hashing
     // We include key fields. In a real system, we'd use a canonical JSON stringify.
     const payloadForHash = JSON.stringify({
@@ -48,8 +52,14 @@ export class AuditService {
       prevHash: prevHash,
     });
 
-    const eventHash = crypto.createHash('sha256').update(payloadForHash).digest('hex');
-    const chainHash = crypto.createHash('sha256').update(prevHash + eventHash).digest('hex');
+    const eventHash = crypto
+      .createHash('sha256')
+      .update(payloadForHash)
+      .digest('hex');
+    const chainHash = crypto
+      .createHash('sha256')
+      .update(prevHash + eventHash)
+      .digest('hex');
 
     // 4. Persist
     const event = await this.prisma.auditEvent.create({
@@ -72,13 +82,35 @@ export class AuditService {
       },
     });
 
+    // 5. Automatic Versioning (if applicable)
+    // If there is 'after' data, it implies a change state, so we take a snapshot.
+    // In a real system, we might want to be more selective (e.g. check action type).
+    if (dto.after && dto.entityType && dto.entityId) {
+      // We don't await this to keep ingestion fast?
+      // For MVP, we await to ensure data integrity.
+      try {
+        await this.versioningService.createSnapshot(
+          dto.tenantId,
+          dto.entityType,
+          dto.entityId,
+          dto.after,
+          dto.actorId,
+          event.id,
+        );
+      } catch (error) {
+        console.error('Failed to create snapshot:', error);
+        // We don't fail the audit ingestion if snapshot fails,
+        // but we should probably log it.
+      }
+    }
+
     return { event, status: 'CREATED' };
   }
-  
+
   async findAll() {
-      return this.prisma.auditEvent.findMany({
-          orderBy: { occurredAt: 'desc' },
-          take: 100,
-      });
+    return this.prisma.auditEvent.findMany({
+      orderBy: { occurredAt: 'desc' },
+      take: 100,
+    });
   }
 }
