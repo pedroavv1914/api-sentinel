@@ -18,7 +18,7 @@ exports.AuditModule = AuditModule = __decorate([
     (0, common_1.Module)({
         imports: [versioning_module_1.VersioningModule],
         providers: [audit_service_1.AuditService],
-        controllers: [audit_controller_1.AuditController]
+        controllers: [audit_controller_1.AuditController],
     })
 ], AuditModule);
 //# sourceMappingURL=audit.module.js.map
