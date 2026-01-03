@@ -1,9 +1,11 @@
 import { PrismaService } from '../common/prisma/prisma.service';
 import { CreateAuditEventDto } from './dto/create-audit-event.dto';
 import { Prisma } from '@prisma/client';
+import { VersioningService } from '../versioning/versioning.service';
 export declare class AuditService {
     private prisma;
-    constructor(prisma: PrismaService);
+    private versioningService;
+    constructor(prisma: PrismaService, versioningService: VersioningService);
     create(dto: CreateAuditEventDto): Promise<{
         event: {
             id: string;
