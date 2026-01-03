@@ -38,7 +38,7 @@ export class ApiKeyGuard implements CanActivate {
     }
 
     // Attach app to request for later use
-    (request as Request & { app: App }).app = app;
+    (request as Request & { apiApp: App }).apiApp = app;
     return true;
   }
 }
