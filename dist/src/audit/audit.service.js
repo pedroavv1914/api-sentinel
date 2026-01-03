@@ -47,10 +47,13 @@ const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../common/prisma/prisma.service");
 const crypto = __importStar(require("crypto"));
 const client_1 = require("@prisma/client");
+const versioning_service_1 = require("../versioning/versioning.service");
 let AuditService = class AuditService {
     prisma;
-    constructor(prisma) {
+    versioningService;
+    constructor(prisma, versioningService) {
         this.prisma = prisma;
+        this.versioningService = versioningService;
     }
     async create(dto) {
         if (dto.idempotencyKey) {
@@ -102,6 +105,14 @@ let AuditService = class AuditService {
                 chainHash: chainHash,
             },
         });
+        if (dto.after && dto.entityType && dto.entityId) {
+            try {
+                await this.versioningService.createSnapshot(dto.tenantId, dto.entityType, dto.entityId, dto.after, dto.actorId, event.id);
+            }
+            catch (error) {
+                console.error('Failed to create snapshot:', error);
+            }
+        }
         return { event, status: 'CREATED' };
     }
     async findAll() {
@@ -114,6 +125,7 @@ let AuditService = class AuditService {
 exports.AuditService = AuditService;
 exports.AuditService = AuditService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        versioning_service_1.VersioningService])
 ], AuditService);
 //# sourceMappingURL=audit.service.js.map
