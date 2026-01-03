@@ -84,8 +84,14 @@ let AuditService = class AuditService {
             occurredAt: occurredAt.toISOString(),
             prevHash: prevHash,
         });
-        const eventHash = crypto.createHash('sha256').update(payloadForHash).digest('hex');
-        const chainHash = crypto.createHash('sha256').update(prevHash + eventHash).digest('hex');
+        const eventHash = crypto
+            .createHash('sha256')
+            .update(payloadForHash)
+            .digest('hex');
+        const chainHash = crypto
+            .createHash('sha256')
+            .update(prevHash + eventHash)
+            .digest('hex');
         const event = await this.prisma.auditEvent.create({
             data: {
                 tenantId: dto.tenantId,
