@@ -1,0 +1,126 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Tenant {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  apps         App[]
+  users        User[]
+  auditEvents  AuditEvent[]
+  snapshots    EntitySnapshot[]
+
+  @@map("tenants")
+}
+
+model App {
+  id         String   @id @default(uuid())
+  tenantId   String   @map("tenant_id")
+  name       String
+  apiKeyHash String   @map("api_key_hash")
+  status     String   @default("ACTIVE") // ACTIVE, INACTIVE
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  tenant       Tenant         @relation(fields: [tenantId], references: [id])
+  auditEvents  AuditEvent[]
+  snapshots    EntitySnapshot[]
+
+  @@map("apps")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  tenantId     String   @map("tenant_id")
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id])
+  roles     UserRole[]
+
+  @@map("users")
+}
+
+model Role {
+  id   String @id @default(uuid())
+  name String @unique // ADMIN, AUDITOR, VIEWER
+
+  users UserRole[]
+
+  @@map("roles")
+}
+
+model UserRole {
+  userId String @map("user_id")
+  roleId String @map("role_id")
+
+  user User @relation(fields: [userId], references: [id])
+  role Role @relation(fields: [roleId], references: [id])
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+enum ActorType {
+  USER
+  SERVICE
+}
+
+model AuditEvent {
+  id             String    @id @default(uuid())
+  tenantId       String    @map("tenant_id")
+  appId          String?   @map("app_id")
+  actorType      ActorType @map("actor_type")
+  actorId        String    @map("actor_id")
+  action         String    // CREATE, UPDATE, DELETE, LOGIN, EXPORT, ROLLBACK_*, etc.
+  entityType     String    @map("entity_type")
+  entityId       String    @map("entity_id")
+  correlationId  String?   @map("correlation_id")
+  idempotencyKey String?   @map("idempotency_key")
+  occurredAt     DateTime  @default(now()) @map("occurred_at")
+  ip             String?
+  userAgent      String?   @map("user_agent")
+  metadata       Json?
+  before         Json?
+  after          Json?
+  eventHash      String    @map("event_hash")
+  prevEventHash  String?   @map("prev_event_hash")
+  chainHash      String?   @map("chain_hash")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  app    App?   @relation(fields: [appId], references: [id])
+
+  @@index([tenantId, entityType, entityId])
+  @@index([occurredAt])
+  @@index([idempotencyKey])
+  @@map("audit_events")
+}
+
+model EntitySnapshot {
+  id         String   @id @default(uuid())
+  tenantId   String   @map("tenant_id")
+  appId      String?  @map("app_id")
+  entityType String   @map("entity_type")
+  entityId   String   @map("entity_id")
+  version    Int
+  data       Json
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  app    App?   @relation(fields: [appId], references: [id])
+
+  @@unique([tenantId, entityType, entityId, version])
+  @@map("entity_snapshots")
+}
